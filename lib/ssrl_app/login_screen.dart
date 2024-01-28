@@ -69,12 +69,18 @@ class LoginScreenState extends State<LoginScreen> {
         saveSharedPrefsStringValue("user_uid", userUid);
         saveSharedPrefsStringValue("pwd", pwd);
         _logger.i("response code: ${response.statusCode}");
+        setState(() {
+          loading = false;
+        });
 
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomeScreen()),
         );
       } else {
+        setState(() {
+          loading = false;
+        });
         _logger.e('Login failed');
         _logger.e("response code: ${response.statusCode}");
 
@@ -89,6 +95,9 @@ class LoginScreenState extends State<LoginScreen> {
       }
     } catch (error) {
       _logger.e('Error: $error');
+      setState(() {
+        loading = false;
+      });
       scaffoldMessenger.showSnackBar(
         const SnackBar(
           content: Text('Failed to connect to the server.'),
