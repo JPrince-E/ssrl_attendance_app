@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "178151117059",
+    "project_id": "ssrl-app",
+    "storage_bucket": "ssrl-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:178151117059:android:66bb61ce4694bcc62ed936",
+        "android_client_info": {
+          "package_name": "com.example.ssrl_attendance_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKdNrNVOYvXpK_RfvlD3YCr1SBP6dfiJw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
