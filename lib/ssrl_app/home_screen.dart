@@ -39,7 +39,17 @@ class HomeScreenState extends State<HomeScreen> {
           qrCodeData = barcodeScanRes;
         });
         await _uploadScanData(userUid, pwd, qrCodeData
+            ).then((response) {
+          if (response != null) {
+            _showCoolDialog(response);
+          } else {
+            scaffoldMessenger.showSnackBar(
+              const SnackBar(
+                content: Text('Failed to upload QR code'),
+              ),
             );
+          }
+        });
 
         _logger.i('user_uid: $userUid');
         _logger.i('pwd: $pwd');
@@ -62,8 +72,10 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _uploadScanData(
+  Future _uploadScanData(
       String userUid, String pwd, String qrCodeData) async {
+
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     final String userUid =  await getSharedPrefsSavedString("user_uid");
     final String pwd = _passwordController.text;
@@ -82,12 +94,21 @@ class HomeScreenState extends State<HomeScreen> {
       );
 
       if (response.statusCode == 200) {
+        Map<String, dynamic> responseBody = jsonDecode(response.body);
+        String responseData = responseBody['response'];
+
         _logger.i('QR code uploaded successfully');
         _logger.w('response.statusCode ${response.statusCode}');
+        return responseData;
       } else {
         _logger.e('Failed to upload QR code');
         _logger.w('response.statusCode ${response.statusCode}');
         _logger.w('response.statusCode ${response.body}');
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content: Text('Failed to upload QR code'),
+          ),
+        );
       }
     } catch (error) {
       _logger.e('Error: $error');
@@ -122,7 +143,19 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _scanQRCode,
+              onPressed: () {
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                if (_passwordController.text.isNotEmpty)  {
+                  _scanQRCode();
+                }else {
+                  scaffoldMessenger.showSnackBar(
+                    const SnackBar(
+                      content: Text('Enter Correct Password'),
+                    ),
+                  );
+                }
+
+              },
               child: const Text('Scan QR Code'),
             ),
             const SizedBox(height: 16),
@@ -140,4 +173,57 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  _showCoolDialog(response) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    response ?? 'Failed to upload QR code', // Display the response or a default message
+                    style: TextStyle(
+                      color: response == 'Marked in' ? Colors.green : Colors.red,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Image.asset('assets/thumbs_up.gif', height: 120),
+                  const SizedBox(height: 20),
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.amber, width: 2),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Text(
+                        'Okay',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
 }
+
